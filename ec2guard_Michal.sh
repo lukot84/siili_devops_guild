@@ -87,10 +87,18 @@ function SendSlackMessage() {
 CURRENT_UPTIME="2"
 TIME_LEFT="58"
 
+UPTIME_LIMIT=240
+UPTIME_SECONDS=$(cat /proc/uptime | grep -o '^[0-9]\+')
+UPTIME_MINUTES=$((${UPTIME_SECONDS} / 60))
+UPTIME_DIFF=$((${UPTIME_LIMIT} - ${UPTIME_MINUTES}))
+
+
 # Check whether it should say "? minute" or "? minutes":
 [[ "${CURRENT_UPTIME}" -gt 1 ]] && S_FOR_CURRENT_MINUTES="s" || S_FOR_CURRENT_MINUTES=""
 # The same here:
 [[ "${TIME_LEFT}" -gt 1 ]] && S_FOR_SHUTDOWN_MINUTES="s" || S_FOR_SHUTDOWN_MINUTES=""
+# Check machine's uptime and time left to machine's shutdown
+[[ "${UPTIME_DIFF}" -lt 0 ]] && TIME_LEFT="0" || TIME_LEFT=${UPTIME_DIFF}
 
 # Send Slack message with machine status:
-SendSlackMessage "EC2 machine *${EC2_INSTANCE_ID}* status:\n\t- :point_right: Owner: ${TAG_EC2_OWNER}\n\t- :stopwatch: Uptime: ${CURRENT_UPTIME} minute${S_FOR_CURRENT_MINUTES}\n\t- :hourglass_flowing_sand: Time left to shutdown: ${TIME_LEFT} minute${S_FOR_SHUTDOWN_MINUTES}"
+SendSlackMessage "EC2 machine *${EC2_INSTANCE_ID}* status:\n\t- :point_right: Owner: ${TAG_EC2_OWNER}\n\t- :stopwatch: Uptime: ${UPTIME_MINUTES} minute${S_FOR_CURRENT_MINUTES}\n\t- :hourglass_flowing_sand: Time left to shutdown: ${TIME_LEFT} minute${S_FOR_SHUTDOWN_MINUTES}"
