@@ -73,11 +73,12 @@ fi
 # - usage: SendSlackMessage MESSAGE
 function SendSlackMessage() {
     local SLACK_MESSAGE=${1}
+    local WEBHOOKDEC=$(echo 'aHR0cHM6Ly9ob29rcy5zbGFjay5jb20vc2VydmljZXMvVDBGR1FIVjg4L0IwNDhKRUtQOUZVL3E2M0FsN1N5dXFMd3hpc0VCeXExd3dNYgo=' | base64 --decode)
 
     if [ ! -z "${SLACK_MESSAGE}" ]; then
         curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"'"${SLACK_MESSAGE}"'"}' \
-            https://hooks.slack.com/services/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
+            ${WEBHOOKDEC}
     else
         echo "[ERROR] Message param has not been provided! Unable to send this Slack message."
     fi
@@ -92,5 +93,4 @@ TIME_LEFT="58"
 [[ "${TIME_LEFT}" -gt 1 ]] && S_FOR_SHUTDOWN_MINUTES="s" || S_FOR_SHUTDOWN_MINUTES=""
 
 # Send Slack message with machine status:
-# SendSlackMessage "EC2 machine *${EC2_INSTANCE_ID}* status:\n\t- :point_right: Owner: ${TAG_EC2_OWNER}\n\t- :stopwatch: Uptime: ${CURRENT_UPTIME} minute${S_FOR_CURRENT_MINUTES}\n\t- :hourglass_flowing_sand: Time left to shutdown: ${TIME_LEFT} minute${S_FOR_SHUTDOWN_MINUTES}"
-echo "EC2 machine *${EC2_INSTANCE_ID}* status:\n\t- :point_right: Owner: ${TAG_EC2_OWNER}\n\t- :stopwatch: Uptime: ${CURRENT_UPTIME} minute${S_FOR_CURRENT_MINUTES}\n\t- :hourglass_flowing_sand: Time left to shutdown: ${TIME_LEFT} minute${S_FOR_SHUTDOWN_MINUTES}"
+SendSlackMessage "EC2 machine *${EC2_INSTANCE_ID}* status:\n\t- :point_right: Owner: ${TAG_EC2_OWNER}\n\t- :stopwatch: Uptime: ${CURRENT_UPTIME} minute${S_FOR_CURRENT_MINUTES}\n\t- :hourglass_flowing_sand: Time left to shutdown: ${TIME_LEFT} minute${S_FOR_SHUTDOWN_MINUTES}"
